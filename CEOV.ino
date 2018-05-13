@@ -3,7 +3,7 @@
 
 #include <Arduboy2.h>
 #include <Sprites.h>
-//highly recommended!!  //#include "autopowerdown.h"
+//#include "autopowerdown.h"
 Arduboy2 arduboy;
 
 #define OFF HIGH
@@ -13,7 +13,7 @@ int LNpair;
 int LNpairmin = 0;
 int LNpairmax = 8;
 int Vnu, Cnu;
-bool v, e, y;
+bool LNPvowel, LNPeven, LNPe1, LNPy;
 const char    vowel[]      = "AEIOUAEIOUAEIOUAEIOUYaeiouaeiouaeiouaeiouy";
 const char    consonant[]  = "BCDFGHJKLMNPQRSTVWXZYbCdfghjklmnpqrstvwxzy";
       int     VCL          = 42;
@@ -23,10 +23,11 @@ const int     EOL          = 5;
 
 //computekm
 //int computeanswerkm;
-const int Sarr[] = {0, 1, 2, 3};
+const int Sarr[] = {0, 1, 2, 3, 4, 5, 6, 7};
 const int Ssize = sizeof(Sarr)/ sizeof(Sarr[0]);
-int Darr[] = {0, 1, 2, 3};
+int Darr[] = {0, 1, 2, 3}; // {0, 1, 2, 3, 4, 5, 6, 7} for 8-choice game (order critical)
 int Dsize = sizeof(Darr)/ sizeof(Darr[0]);
+int gametype = 0; //0 == 4-choice game, 1 == 8-choice game
 
 //swaptool
 void swap (int *a, int *b)
@@ -72,72 +73,71 @@ boolean buttonfree = true;
 boolean showbutton = false;
 char challenge[1];
 bool gameinprogress = false;
-int gametype = 0; //0 == 4-choice game, 1 == 8-choice game
 
 int leftcounter, rightcounter, horizontalcounter, upcounter, downcounter, verticalcounter;
 bool uppress, leftpress, rightpress, downpress, consent = false;
 
-int keylinger = 3;
+int keylinger = 4;
 
 void computechallenge() {
   LNpair = random(LNpairmin, LNpairmax);
   switch(LNpair) {
     case 0:
-      v = true; e = true;
+      LNPeven = true; LNPvowel = true; LNPe1 = true;
+      challenge[0] = even[random(EOL)];
       Vnu = random(VCL);
-      if(Vnu == 20 || Vnu == 41){y = true;}
-      else {y = false;}
-      challenge[0] = vowel[Vnu];
-      challenge[1] = even[random(EOL)];break;
+      if(Vnu == 20 || Vnu == 41){LNPy = true;}
+      else {LNPy = false;}
+      challenge[1] = vowel[Vnu];break;
     case 1:
+      LNPeven = true; LNPvowel = false; LNPe1 = true;
+      challenge[0] = even[random(EOL)];
+      Cnu = random(VCL);
+      if(Cnu == 20 || Cnu == 41){LNPy = true;}
+      else {LNPy = false;}
+      challenge[1] = consonant[Cnu];break;
+    case 2:
+      LNPeven = false; LNPvowel = true; LNPe1 = true;
+      challenge[0] = odd[random(EOL)];
       Vnu = random(VCL);
-      v = true; e = false;
-      if(Vnu == 20 || Vnu == 41){y = true;}
-      else {y = false;}
+      if(Vnu == 20 || Vnu == 41){LNPy = true;}
+      else {LNPy = false;}
+      challenge[1] = vowel[Vnu];break;
+    case 3:
+      LNPeven = false; LNPvowel = false; LNPe1 = true;
+      challenge[0] = odd[random(EOL)];
+      Cnu = random(VCL);
+      if(Cnu == 20 || Cnu == 41){LNPy = true;}
+      else {LNPy = false;}
+      challenge[1] = consonant[Cnu];break;   
+    case 4:
+      LNPvowel = true; LNPeven = true; if(gametype == 0){LNPe1 = true;} else {LNPe1 = false;}
+      Vnu = random(VCL);
+      if(Vnu == 20 || Vnu == 41){LNPy = true;}
+      else {LNPy = false;}
+      challenge[0] = vowel[Vnu];
+      challenge[1] = even[random(EOL)];break;
+    case 5:
+      Vnu = random(VCL);
+      LNPvowel = true; LNPeven = false; if(gametype == 0){LNPe1 = true;} else {LNPe1 = false;}
+      if(Vnu == 20 || Vnu == 41){LNPy = true;}
+      else {LNPy = false;}
       challenge[0] = vowel[Vnu];
       challenge[1] = odd[random(EOL)];break;
-    case 2:
-      v = false; e = true;
+    case 6:
+      LNPvowel = false; LNPeven = true; if(gametype == 0){LNPe1 = true;} else {LNPe1 = false;}
       Cnu = random(VCL);
-      if(Cnu == 20 || Cnu == 41){y = true;}
-      else {y = false;}
+      if(Cnu == 20 || Cnu == 41){LNPy = true;}
+      else {LNPy = false;}
       challenge[0] = consonant[Cnu];
       challenge[1] = even[random(EOL)];break;
-    case 3:
-      v = false; e = false;
+    case 7:
+      LNPvowel = false; LNPeven = false; if(gametype == 0){LNPe1 = true;} else {LNPe1 = false;}
       Cnu = random(VCL);
-      if(Cnu == 20 || Cnu == 41){y = true;}
-      else {y = false;}
+      if(Cnu == 20 || Cnu == 41){LNPy = true;}
+      else {LNPy = false;}
       challenge[0] = consonant[Cnu];
       challenge[1] = odd[random(EOL)];break;
-    case 4:
-      e = true; v = true;
-      challenge[0] = even[random(EOL)];
-      Vnu = random(VCL);
-      if(Vnu == 20 || Vnu == 41){y = true;}
-      else {y = false;}
-      challenge[1] = vowel[Vnu];break;
-    case 5:
-      e = true; v = false;
-      challenge[0] = even[random(EOL)];
-      Cnu = random(VCL);
-      if(Cnu == 20 || Cnu == 41){y = true;}
-      else {y = false;}
-      challenge[1] = consonant[Cnu];break;
-    case 6:
-      e = false; v = true;
-      challenge[0] = odd[random(EOL)];
-      Vnu = random(VCL);
-      if(Vnu == 20 || Vnu == 41){y = true;}
-      else {y = false;}
-      challenge[1] = vowel[Vnu];break;
-    case 7:
-      e = false; v = false;
-      challenge[0] = odd[random(EOL)];
-      Cnu = random(VCL);
-      if(Cnu == 20 || Cnu == 41){y = true;}
-      else {y = false;}
-      challenge[1] = consonant[Cnu];break;
   }
 }
 
@@ -162,17 +162,29 @@ void incorrect(){
 
 void akm(int c) {
   switch(c){
-  case 0: //ev
-  if (e == true && (v == true || y == true)) {correct();}
+  case 0: //EV
+  if (LNPeven == true && (LNPvowel == true || LNPy == true) && LNPe1 == true) {correct();}
   else {incorrect();}break;
-  case 1: //ec
-  if (e == true && (v == false || y == true)) {correct();}
+  case 1: //EC
+  if (LNPeven == true && (LNPvowel == false || LNPy == true) && LNPe1 == true) {correct();}
   else {incorrect();}break;
-  case 2: //ov
-  if (e == false && (v == true || y == true)) {correct();}
+  case 2: //OV
+  if (LNPeven == false && (LNPvowel == true || LNPy == true) && LNPe1 == true) {correct();}
   else {incorrect();}break;
-  case 3: //oc
-  if (e == false && (v == false || y == true)) {correct();}
+  case 3: //OC
+  if (LNPeven == false && (LNPvowel == false || LNPy == true) && LNPe1 == true) {correct();}
+  else {incorrect();}break;
+  case 4: //VE
+  if (LNPeven == true && (LNPvowel == true || LNPy == true) && LNPe1 == false) {correct();}
+  else {incorrect();}break;
+  case 5: //VO
+  if (LNPeven == false && (LNPvowel == true || LNPy == true) && LNPe1 == false) {correct();}
+  else {incorrect();}break;
+  case 6: //CE
+  if (LNPeven == true && (LNPvowel == false || LNPy == true) && LNPe1 == false) {correct();}
+  else {incorrect();}break;
+  case 7: //CO
+  if (LNPeven == false && (LNPvowel == false || LNPy == true) && LNPe1 == false) {correct();}
   else {incorrect();}break;
   }
 }
@@ -255,14 +267,6 @@ const unsigned char PROGMEM eng_plus_mask[] =
 0x0f, 0x08, 0x0f, 0x08, 0x0f, 0x08, 0x0f, 0x08, 0x0f, 0x08, 0x0f, 0x08, 0x0f, 0x08, 0x0f, 0x08, 0x0f, 0x08, 0x0f, 0x04, 0x07, 0x02, 0x03, 0x01, 0x01,
 };
 
-
-/*
- *  arduboy.setCursor(56,6);akmd(Darr[0]);
-    arduboy.setCursor(34,26);akmd(Darr[1]);
-    arduboy.setCursor(78,26);akmd(Darr[2]);
-    arduboy.setCursor(56,46);akmd(Darr[3]);
- */
-
 int ha = 24;
 
 void akmd(int& d) {
@@ -313,15 +317,14 @@ const __FlashStringHelper * FlashString(const char * string)
 uint8_t selectedIndex;
 
 unsigned long test, test2;
-void setup() {
-  arduboy.boot();
-  arduboy.flashlight();
-  arduboy.setFrameRate(10);
-  arduboy.display();
-}
 
+void setup() {arduboy.boot();arduboy.flashlight();arduboy.setFrameRate(15);arduboy.display();}
+
+//#########################################################################################################################
+//############# MAIN LOOP #################################################################################################
+//#########################################################################################################################
 void loop() {
-//highly recommended!!  //autoPowerDown(6);
+//autoPowerDown(6);
   //Prevent the Arduboy from running too fast
   if(!arduboy.nextFrame()) return;
   switch(state) {
@@ -330,16 +333,8 @@ void loop() {
       arduboy.setCursor(52,0);arduboy.print("CEOV");
       
   arduboy.pollButtons();
-  if(arduboy.justPressed(UP_BUTTON))
-  {
-    if(selectedIndex > 0)
-      --selectedIndex;
-  }
-  if(arduboy.justPressed(DOWN_BUTTON))
-  {
-    if(selectedIndex < maxIndex)
-      ++selectedIndex;
-  }
+  if(arduboy.justPressed(UP_BUTTON)){if(selectedIndex > 0) --selectedIndex;}
+  if(arduboy.justPressed(DOWN_BUTTON)){if(selectedIndex < maxIndex) ++selectedIndex;}
 
 arduboy.setCursor(0, 32);
   
@@ -358,9 +353,7 @@ arduboy.setCursor(0, 32);
       arduboy.print(F("  "));
     }
   
-    // Print the string in the array
-    // This is quite complicated if you don't know about
-    // pointers and casting.
+    // Print the string in the array, This is quite complicated if you don't know about, pointers and casting.
     arduboy.println(FlashString(pgm_read_word(&options[i])));
   }
       if(arduboy.pressed(UP_BUTTON) || arduboy.pressed(LEFT_BUTTON) || arduboy.pressed(RIGHT_BUTTON) || arduboy.pressed(DOWN_BUTTON) || arduboy.pressed(A_BUTTON) || arduboy.pressed(B_BUTTON) && firstpress == false) {
@@ -390,6 +383,12 @@ arduboy.setCursor(0, 32);
     Sprites::drawPlusMask(0+ha, 22, eng_plus_mask, Darr[1]);
     Sprites::drawPlusMask(54+ha, 22, eng_plus_mask, Darr[2]);
     Sprites::drawPlusMask(27+ha, 44, eng_plus_mask, Darr[3]);
+    if (gametype == 1){
+    Sprites::drawPlusMask(3+ha, 3, eng_plus_mask, Darr[4]);
+    Sprites::drawPlusMask(51+ha, 3, eng_plus_mask, Darr[5]);
+    Sprites::drawPlusMask(3+ha, 41, eng_plus_mask, Darr[6]);
+    Sprites::drawPlusMask(51+ha, 41, eng_plus_mask, Darr[7]);
+    }
       arduboy.setCursor(58,28);arduboy.print(challenge);
       if (showbutton == true){;
       arduboy.setCursor(0,0);arduboy.print(Qright);
@@ -398,10 +397,10 @@ arduboy.setCursor(0, 32);
       //arduboy.setCursor(100,57);arduboy.print(Tanswered);
       }
 //debug keycounters
-//    arduboy.setCursor(72,6);arduboy.print(upcounter);
-  //  arduboy.setCursor(34,35);arduboy.print(leftcounter);
-    //arduboy.setCursor(94,26);arduboy.print(rightcounter);
-    //arduboy.setCursor(70,46);arduboy.print(downcounter);
+//arduboy.setCursor(72,0);arduboy.print(upcounter);
+//arduboy.setCursor(20,35);arduboy.print(leftcounter);
+//arduboy.setCursor(99,26);arduboy.print(rightcounter);
+//arduboy.setCursor(70,46);arduboy.print(downcounter);
 
  arduboy.pollButtons();
   if(arduboy.pressed(UP_BUTTON)) {upcounter = keylinger; uppress = true; consent = true;}
@@ -412,7 +411,7 @@ arduboy.setCursor(0, 32);
   if(arduboy.justReleased(LEFT_BUTTON)) {leftpress = false;} //
   if(arduboy.justReleased(RIGHT_BUTTON)) {rightpress = false;} //
   if(arduboy.justReleased(DOWN_BUTTON)) {downpress = false;}
-  if (upcounter != 0 && uppress == false){upcounter -= 1;}
+  if (upcounter != 0 && uppress == false){upcounter -=1;}
   if (leftcounter != 0 && leftpress == false){leftcounter +=1;} //
   if (rightcounter != 0 && rightpress == false){rightcounter -=1;} //
   if (downcounter != 0 && downpress == false){downcounter +=1;}
