@@ -3,7 +3,7 @@
 
 #include <Arduboy2.h>
 #include <Sprites.h>
-//#include "autopowerdown.h"
+#include "autopowerdown.h"
 Arduboy2 arduboy;
 
 #define OFF HIGH
@@ -22,12 +22,11 @@ const char    odd[]        = "13579";
 const int     EOL          = 5;
 
 //computekm
-//int computeanswerkm;
-const int Sarr[] = {0, 1, 2, 3, 4, 5, 6, 7};
+const int Sarr[] = {0,1,2,3,4,5,6,7};
 const int Ssize = sizeof(Sarr)/ sizeof(Sarr[0]);
-int Darr[] = {0, 1, 2, 3}; // {0, 1, 2, 3, 4, 5, 6, 7} for 8-choice game (order critical)
+int Darr[] = {0,1,2,3,4,5,6,7}; // {0,1,2,3,4,5,6,7} for 8-choice game (order critical)
 int Dsize = sizeof(Darr)/ sizeof(Darr[0]);
-int gametype = 0; //0 == 4-choice game, 1 == 8-choice game
+int gametype = 1; //0 == 4-choice game, 1 == 8-choice game
 
 //swaptool
 void swap (int *a, int *b)
@@ -76,8 +75,9 @@ bool gameinprogress = false;
 
 int leftcounter, rightcounter, horizontalcounter, upcounter, downcounter, verticalcounter;
 bool uppress, leftpress, rightpress, downpress, consent = false;
-
 int keylinger = 4;
+int sx, sy;
+int sw = 27; int sh = 22; int sc = 6;
 
 void computechallenge() {
   LNpair = random(LNpairmin, LNpairmax);
@@ -86,56 +86,48 @@ void computechallenge() {
       LNPeven = true; LNPvowel = true; LNPe1 = true;
       challenge[0] = even[random(EOL)];
       Vnu = random(VCL);
-      if(Vnu == 20 || Vnu == 41){LNPy = true;}
-      else {LNPy = false;}
+      if(Vnu == 20 || Vnu == 41){LNPy = true;} else{LNPy = false;}
       challenge[1] = vowel[Vnu];break;
     case 1:
       LNPeven = true; LNPvowel = false; LNPe1 = true;
       challenge[0] = even[random(EOL)];
       Cnu = random(VCL);
-      if(Cnu == 20 || Cnu == 41){LNPy = true;}
-      else {LNPy = false;}
+      if(Cnu == 20 || Cnu == 41){LNPy = true;} else{LNPy = false;}
       challenge[1] = consonant[Cnu];break;
     case 2:
       LNPeven = false; LNPvowel = true; LNPe1 = true;
       challenge[0] = odd[random(EOL)];
       Vnu = random(VCL);
-      if(Vnu == 20 || Vnu == 41){LNPy = true;}
-      else {LNPy = false;}
+      if(Vnu == 20 || Vnu == 41){LNPy = true;} else{LNPy = false;}
       challenge[1] = vowel[Vnu];break;
     case 3:
       LNPeven = false; LNPvowel = false; LNPe1 = true;
       challenge[0] = odd[random(EOL)];
       Cnu = random(VCL);
-      if(Cnu == 20 || Cnu == 41){LNPy = true;}
-      else {LNPy = false;}
+      if(Cnu == 20 || Cnu == 41){LNPy = true;} else{LNPy = false;}
       challenge[1] = consonant[Cnu];break;   
     case 4:
       LNPvowel = true; LNPeven = true; if(gametype == 0){LNPe1 = true;} else {LNPe1 = false;}
       Vnu = random(VCL);
-      if(Vnu == 20 || Vnu == 41){LNPy = true;}
-      else {LNPy = false;}
+      if(Vnu == 20 || Vnu == 41){LNPy = true;} else{LNPy = false;}
       challenge[0] = vowel[Vnu];
       challenge[1] = even[random(EOL)];break;
     case 5:
       Vnu = random(VCL);
       LNPvowel = true; LNPeven = false; if(gametype == 0){LNPe1 = true;} else {LNPe1 = false;}
-      if(Vnu == 20 || Vnu == 41){LNPy = true;}
-      else {LNPy = false;}
+      if(Vnu == 20 || Vnu == 41){LNPy = true;} else{LNPy = false;}
       challenge[0] = vowel[Vnu];
       challenge[1] = odd[random(EOL)];break;
     case 6:
       LNPvowel = false; LNPeven = true; if(gametype == 0){LNPe1 = true;} else {LNPe1 = false;}
       Cnu = random(VCL);
-      if(Cnu == 20 || Cnu == 41){LNPy = true;}
-      else {LNPy = false;}
+      if(Cnu == 20 || Cnu == 41){LNPy = true;} else{LNPy = false;}
       challenge[0] = consonant[Cnu];
       challenge[1] = even[random(EOL)];break;
     case 7:
       LNPvowel = false; LNPeven = false; if(gametype == 0){LNPe1 = true;} else {LNPe1 = false;}
       Cnu = random(VCL);
-      if(Cnu == 20 || Cnu == 41){LNPy = true;}
-      else {LNPy = false;}
+      if(Cnu == 20 || Cnu == 41){LNPy = true;} else{LNPy = false;}
       challenge[0] = consonant[Cnu];
       challenge[1] = odd[random(EOL)];break;
   }
@@ -324,7 +316,7 @@ void setup() {arduboy.boot();arduboy.flashlight();arduboy.setFrameRate(15);ardub
 //############# MAIN LOOP #################################################################################################
 //#########################################################################################################################
 void loop() {
-//autoPowerDown(6);
+autoPowerDown(6);
   //Prevent the Arduboy from running too fast
   if(!arduboy.nextFrame()) return;
   switch(state) {
@@ -389,6 +381,7 @@ arduboy.setCursor(0, 32);
     Sprites::drawPlusMask(3+ha, 41, eng_plus_mask, Darr[6]);
     Sprites::drawPlusMask(51+ha, 41, eng_plus_mask, Darr[7]);
     }
+    //arduboy.drawRoundRect(sx+ha, sy, sw, sh, sc);
       arduboy.setCursor(58,28);arduboy.print(challenge);
       if (showbutton == true){;
       arduboy.setCursor(0,0);arduboy.print(Qright);
@@ -407,6 +400,18 @@ arduboy.setCursor(0, 32);
   if(arduboy.pressed(LEFT_BUTTON)) {leftcounter = -keylinger; leftpress = true; consent = true;} //
   if(arduboy.pressed(RIGHT_BUTTON)) {rightcounter = keylinger; rightpress = true; consent = true;} //
   if(arduboy.pressed(DOWN_BUTTON)) {downcounter = -keylinger; downpress = true; consent = true;}
+  //generate visual
+  if((upcounter != 0 || leftcounter != 0 || rightcounter != 0 || downcounter != 0) && consent == true){
+    int horizontalcounter=leftcounter+rightcounter; int verticalcounter=upcounter+downcounter;
+          if (horizontalcounter == 0 && verticalcounter > 0){arduboy.drawRoundRect(26+ha,-1,sw,sh,sc);}//up
+          if (horizontalcounter < 0 && verticalcounter == 0){arduboy.drawRoundRect(-1+ha,21,sw,sh,sc);}//left
+          if (horizontalcounter > 0 && verticalcounter == 0){arduboy.drawRoundRect(53+ha,21,sw,sh,sc);}//right
+          if (horizontalcounter == 0 && verticalcounter < 0){arduboy.drawRoundRect(26+ha,43,sw,sh,sc);}//down
+          if (horizontalcounter < 0 && verticalcounter > 0){arduboy.drawRoundRect(2+ha,2,sw,sh,sc);}//northwest
+          if (horizontalcounter > 0 && verticalcounter > 0){arduboy.drawRoundRect(50+ha,2,sw,sh,sc);}//northeast
+          if (horizontalcounter < 0 && verticalcounter < 0){arduboy.drawRoundRect(2+ha,40,sw,sh,sc);}//southwest
+          if (horizontalcounter > 0 && verticalcounter < 0){arduboy.drawRoundRect(50+ha,40,sw,sh,sc);}//southeast
+  }
   if(arduboy.justReleased(UP_BUTTON)) {uppress = false;}
   if(arduboy.justReleased(LEFT_BUTTON)) {leftpress = false;} //
   if(arduboy.justReleased(RIGHT_BUTTON)) {rightpress = false;} //
@@ -453,7 +458,7 @@ arduboy.setCursor(0, 32);
         showbutton = false;
       }
       break;
-    case 2: //2 choice mode UNFINISHED
+    case 2:{ //2 choice mode UNFINISHED
       arduboy.clear();
       maxchoices = 0;
     arduboy.setCursor(0,0);test=micros()/(10*exp(6));arduboy.print(test);
