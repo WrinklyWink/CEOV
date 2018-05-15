@@ -24,9 +24,9 @@ const int     EOL          = 5;
 //computekm
 const int Sarr[] = {0,1,2,3,4,5,6,7};
 const int Ssize = sizeof(Sarr)/ sizeof(Sarr[0]);
-int Darr[] = {0,1,2,3,4,5,6,7}; // {0,1,2,3,4,5,6,7} for 8-choice game (order critical)
+int Darr[] = {0,1,2,3}; // {0,1,2,3,4,5,6,7} for 8-choice game (order critical)
 int Dsize = sizeof(Darr)/ sizeof(Darr[0]);
-int gametype = 1; //0 == 4-choice game, 1 == 8-choice game
+int gametype = 0; //0 == 4-choice game, 1 == 8-choice game
 
 //swaptool
 void swap (int *a, int *b)
@@ -403,6 +403,18 @@ arduboy.setCursor(0, 32);
   //generate visual
   if((upcounter != 0 || leftcounter != 0 || rightcounter != 0 || downcounter != 0) && consent == true){
     int horizontalcounter=leftcounter+rightcounter; int verticalcounter=upcounter+downcounter;
+      switch (gametype){
+        case 0:{
+          if (abs(horizontalcounter) > abs(verticalcounter)){ //axis choose
+            if (horizontalcounter > 0){arduboy.drawRoundRect(-1+ha,21,sw,sh,sc);}
+            else {arduboy.drawRoundRect(53+ha,21,sw,sh,sc);}
+          }
+          else {
+            if (verticalcounter > 0){arduboy.drawRoundRect(26+ha,-1,sw,sh,sc);}
+            else {arduboy.drawRoundRect(26+ha,-1,sw,sh,sc);}
+          }
+        }break;
+        case 1:{
           if (horizontalcounter == 0 && verticalcounter > 0){arduboy.drawRoundRect(26+ha,-1,sw,sh,sc);}//up
           if (horizontalcounter < 0 && verticalcounter == 0){arduboy.drawRoundRect(-1+ha,21,sw,sh,sc);}//left
           if (horizontalcounter > 0 && verticalcounter == 0){arduboy.drawRoundRect(53+ha,21,sw,sh,sc);}//right
@@ -411,6 +423,8 @@ arduboy.setCursor(0, 32);
           if (horizontalcounter > 0 && verticalcounter > 0){arduboy.drawRoundRect(50+ha,2,sw,sh,sc);}//northeast
           if (horizontalcounter < 0 && verticalcounter < 0){arduboy.drawRoundRect(2+ha,40,sw,sh,sc);}//southwest
           if (horizontalcounter > 0 && verticalcounter < 0){arduboy.drawRoundRect(50+ha,40,sw,sh,sc);}//southeast
+        }break;
+      }
   }
   if(arduboy.justReleased(UP_BUTTON)) {uppress = false;}
   if(arduboy.justReleased(LEFT_BUTTON)) {leftpress = false;} //
