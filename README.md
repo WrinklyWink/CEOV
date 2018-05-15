@@ -1,4 +1,6 @@
-CEOV aka #/Letter Pairs
+CEOV
+aka #/Letter Pairs
+
 A brain game for the gaming platform "Arduboy" which uses consonant/vowel, odd/even differentiation in order to build multitasking speed.
 updates and instructions: https://community.arduboy.com/t/wip-letter-pairs-a-brain-game/5574/4
 
