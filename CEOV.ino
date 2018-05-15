@@ -3,7 +3,7 @@
 
 #include <Arduboy2.h>
 #include <Sprites.h>
-#include "autopowerdown.h"
+//#include "autopowerdown.h"
 Arduboy2 arduboy;
 
 #define OFF HIGH
@@ -316,7 +316,7 @@ void setup() {arduboy.boot();arduboy.flashlight();arduboy.setFrameRate(15);ardub
 //############# MAIN LOOP #################################################################################################
 //#########################################################################################################################
 void loop() {
-autoPowerDown(6);
+//autoPowerDown(6);
   //Prevent the Arduboy from running too fast
   if(!arduboy.nextFrame()) return;
   switch(state) {
