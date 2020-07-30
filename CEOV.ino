@@ -486,6 +486,7 @@ arduboy.setCursor(0, 32);
       if(arduboy.notPressed(A_BUTTON)){
         showbutton = false;
       }
+    }
       break;
     case 3: //setup UNFINISHED
        if(arduboy.pressed(A_BUTTON) && buttonfree) {
