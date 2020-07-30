@@ -406,12 +406,12 @@ arduboy.setCursor(0, 32);
       switch (gametype){
         case 0:{
           if (abs(horizontalcounter) > abs(verticalcounter)){ //axis choose
-            if (horizontalcounter > 0){arduboy.drawRoundRect(-1+ha,21,sw,sh,sc);}
-            else {arduboy.drawRoundRect(53+ha,21,sw,sh,sc);}
+            if (horizontalcounter > 0){arduboy.drawRoundRect(53+ha,21,sw,sh,sc);}
+            else {arduboy.drawRoundRect(-1+ha,21,sw,sh,sc);}
           }
           else {
             if (verticalcounter > 0){arduboy.drawRoundRect(26+ha,-1,sw,sh,sc);}
-            else {arduboy.drawRoundRect(26+ha,-1,sw,sh,sc);}
+            else {arduboy.drawRoundRect(26+ha,43,sw,sh,sc);}
           }
         }break;
         case 1:{
